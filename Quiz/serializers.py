@@ -21,7 +21,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ('name', 'email', 'image', 'score')
+        fields = ('name', 'email', 'imageLink', 'score', 'roundNo')
 
 
 class RoundSerializer(serializers.ModelSerializer):

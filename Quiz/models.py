@@ -62,8 +62,9 @@ class Clue(models.Model):
 class Player(models.Model):
     name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(max_length=254)
-    image = models.CharField(max_length=200)
+    imageLink = models.CharField(max_length=200)
     score = models.IntegerField(default=0)
+    roundNo = models.IntegerField(default=1)
     current_hints = models.CharField(max_length=200, blank=True)
     submit_time = models.DateTimeField(auto_now_add=True)
 

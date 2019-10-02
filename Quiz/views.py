@@ -106,7 +106,7 @@ class leaderboard(generics.GenericAPIView):
                 "name": player.name,
                 "rank": player.rank,
                 "score": player.score,
-                "image": player.image,
+                "image": player.imageLink,
             })
             current_rank += 1
         return Response({"standings": players_array, "safe": False})
@@ -132,7 +132,7 @@ class Register(generics.GenericAPIView):
                 serializer.is_valid(raise_exception=True)
                 user = serializer.save()
                 player = Player.objects.create(
-                    name=res['username'], email=res['email'], image=res['image'])
+                    name=res['username'], email=res['email'], imageLink=res['image'])
                 return Response({
                     "user": serializer.data,
                     "token": AuthToken.objects.create(user)[1],
@@ -176,15 +176,14 @@ class Login(generics.GenericAPIView):
 @permission_classes([IsAuthenticated, ])
 class getRound(APIView):
     def get(self, request, format=None):
-        player = Player.objects.get(name=request.data.get('username'))
-        roundno = player.score/10 + 1
+        player = Player.objects.get(name=request.user.username)
         try:
-            curr_round = Round.objects.get(round_number=roundno)
+            curr_round = Round.objects.get(round_number=player.roundNo)
             serializer = RoundSerializer(curr_round)
             centre = centrePoint(curr_round)
             return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
         except:
-            if roundno == len(Round.objects.all()):
+            if player.roundNo == len(Round.objects.all()):
                 return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})
 
@@ -193,11 +192,13 @@ class getRound(APIView):
 class checkRound(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            player = Player.objects.get(name=request.data.get('username'))
+            player = Player.objects.get(name=request.user.username)
             round = Round.objects.get(
-                round_number=(player.score/10+1))
+                round_number=(player.roundNo))
+
             if round.checkAnswer(request.data.get("answer")):
                 player.score += 10
+                player.roundNo += 1
                 player.submit_time = timezone.now()
                 player.save()
                 return Response({"status": 200, "detail": 1})
@@ -211,8 +212,8 @@ class checkRound(APIView):
 class getClue(APIView):
     def get(self, request, format=None):
         try:
-            player = Player.objects.get(name=request.data.get('username'))
-            round = Round.objects.get(round_number=(player.score/10+1))
+            player = Player.objects.get(name=request.user.username)
+            round = Round.objects.get(round_number=(player.roundNo))
             response = []
             clues = Clue.objects.filter(round=round)
             for clue in clues:
@@ -236,8 +237,8 @@ class getClue(APIView):
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            player = Player.objects.get(name=request.data.get("username"))
-            clue = Clue.objects.get(pk=int(request.data.get("clue")))
+            player = Player.objects.get(name=request.user.username)
+            clue = Clue.objects.get(pk=int(request.data.get("clue_id")))
             if clue.checkAnswer(request.data.get("answer")):
                 player.putClues(clue.pk)
                 player.save()
