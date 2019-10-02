@@ -1,0 +1,8 @@
+*/__pycache__/
+Quiz/*/__pycache__/
+db.sqlite3
+/media
+.vscode/
+
+env/
+*.env
