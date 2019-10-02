@@ -16,6 +16,8 @@ This is the backend repository built on Django framework and utilises Django Res
 
 402 : Token Expired.
 
+403 : Wrong Clue ID.
+
 500 : Wrong Answer
 
 The API links:

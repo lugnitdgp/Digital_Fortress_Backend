@@ -184,7 +184,7 @@ class getRound(APIView):
             centre = centrePoint(curr_round)
             return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
         except:
-            if player.roundNo == len(Round.objects.all()):
+            if Round.ObjectDoesNotExist:
                 return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})
 
@@ -205,7 +205,7 @@ class checkRound(APIView):
                 return Response({"status": 200, "detail": 1})
             else:
                 return Response({"status": 500, "detail": 1})
-        except Player.DoesNotExist or Round.DoesNotExist:
+        except (Player.DoesNotExist, Round.DoesNotExist):
             return Response({"status": 404, "detail": 1})
 
 
@@ -230,7 +230,7 @@ class getClue(APIView):
                         {"id": clue.id, "question": clue.question, "solved": False}
                     )
             return Response({"clues": response, "status": 200, "detail": 1})
-        except Player.DoesNotExist or Round.DoesNotExist:
+        except (Player.DoesNotExist, Round.DoesNotExist):
             return Response({"status": 404, "detail": 1})
 
 
@@ -239,12 +239,15 @@ class putClue(APIView):
     def post(self, request, *args, **kwargs):
         try:
             player = Player.objects.get(name=request.user.username)
-            clue = Clue.objects.get(pk=int(request.data.get("clue_id")))
-            if clue.checkAnswer(request.data.get("answer")):
-                player.putClues(clue.pk)
-                player.save()
-                return Response({"status": 200, "position": clue.getPosition(), "detail": 1})
-            else:
-                return Response({"status": 500, "detail": 1})
+            try:
+                clue = Clue.objects.get(pk=int(request.data.get("clue_id")))
+                if clue.checkAnswer(request.data.get("answer")):
+                    player.putClues(clue.pk)
+                    player.save()
+                    return Response({"status": 200, "position": clue.getPosition(), "detail": 1})
+                else:
+                    return Response({"status": 500, "detail": 1})
+            except (ValueError, Clue.DoesNotExist):
+                return Response({"status": 403, "message": "Wrong Clue ID."})
         except Player.DoesNotExist:
-            return ({"data": None, "status": 404})
+            return Response({"data": None, "status": 404})

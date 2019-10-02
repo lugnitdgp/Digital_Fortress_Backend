@@ -20,7 +20,7 @@ class Round(models.Model):
         return answer_array
 
     def checkAnswer(self, answer):
-        answer = answer.lower()
+        answer = answer.lower().strip()
         answers = self.transformAnswer()
         for a in answers:
             if a == answer:
@@ -46,7 +46,7 @@ class Clue(models.Model):
         return answer_array
 
     def checkAnswer(self, answer):
-        answer = answer.lower()
+        answer = answer.lower().strip()
         answers = self.transformAnswer()
         for a in answers:
             if a == answer:
