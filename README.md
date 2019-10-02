@@ -24,6 +24,8 @@ quiz/auth/register - For registering a user
 
 quiz/auth/login - For logging in a user
 
+quiz/logout - For logging out a user and deleting the knox token
+
 quiz/getRound - To get the round for a user
 
 quiz/checkRound - To check the answer submitted by a user for a given round

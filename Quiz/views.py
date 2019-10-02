@@ -19,6 +19,7 @@ import urllib
 from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
 from decouple import config
 
+
 # Create your views here.
 
 
