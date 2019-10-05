@@ -11,6 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import HttpResponse, JsonResponse
 from .models import Round, Player, Clue
 import datetime
+import requests
+import time
 import json
 import csv
 import os
@@ -54,21 +56,22 @@ def verifyGoogleToken(token):
         return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
 
 
-def verifyFacebookToken(token):
-    APP_SECRET = config('APP_SECRET')
-    APP_ID = config('APP_ID')
-
-    appLink = 'https://graph.facebook.com/oauth/access_token?client_id={}&client_secret={}&grant_type=client_credentials'.format(
-        APP_ID, APP_SECRET)
-    appToken = requests.get(appLink).json()['access_token']
-    link = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}'.format(
-        token, appToken)
-
-    try:
-        userId = requests.get(link).json()['data']['user_id']
-    except (ValueError, KeyError, TypeError) as error:
-        return Response({"error": error})
-    return userId
+def verifyFacebookToken(accesstoken, expiration_time, userID):
+    if(int(expiration_time) < int(time.time())):
+        return {"status": 404}
+    else:
+        url = "https://graph.facebook.com/{}".format(userID)
+        parameters = {
+            'fields': 'name,email,picture',
+            'access_token': accesstoken
+        }
+        idInfo = requests.get(url=url, params=parameters).json()
+        return {
+            "email": idInfo['email'],
+            "username": idInfo['name'],
+            "image": idInfo['picture']['data']['url'],
+            'status': 200
+        }
 
 
 def centrePoint(roundNo):
@@ -121,7 +124,8 @@ class Register(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.data.get('accesstoken'))
+            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
+                'userID'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
@@ -151,7 +155,8 @@ class Login(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.data.get('accesstoken'))
+            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
+                'userID'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
@@ -184,7 +189,7 @@ class getRound(APIView):
             centre = centrePoint(curr_round)
             return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
         except:
-            if Round.ObjectDoesNotExist:
+            if Round.DoesNotExist:
                 return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})
 
@@ -251,3 +256,4 @@ class putClue(APIView):
                 return Response({"status": 403, "message": "Wrong Clue ID."})
         except Player.DoesNotExist:
             return Response({"data": None, "status": 404})
+
