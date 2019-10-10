@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import HttpResponse, JsonResponse
 from .models import Round, Player, Clue
 import datetime
-import requests
+import requests as r
 import time
 import json
 import csv
@@ -65,7 +65,7 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
             'fields': 'name,email,picture',
             'access_token': accesstoken
         }
-        idInfo = requests.get(url=url, params=parameters).json()
+        idInfo = r.get(url=url, params=parameters).json()
         return {
             "email": idInfo['email'],
             "username": idInfo['name'],
@@ -164,6 +164,7 @@ class Login(generics.GenericAPIView):
             })
         else:
             if verifyUser(res['email']) == True:
+                print(res)
                 user = User.objects.get(username=res['username'])
                 player = Player.objects.get(name=res['username'])
                 serializer = self.get_serializer(player)
