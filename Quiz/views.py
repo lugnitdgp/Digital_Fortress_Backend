@@ -23,7 +23,11 @@ from decouple import config
 
 
 # Create your views here.
-
+def siteActive():
+    if int(time.time())<config('ACTIVE_TIME',cast=int):
+        return False
+    else:
+        return True
 
 def LeaderBoard(request):
     if request.GET.get("password") == config('DOWNLOAD', cast=str):
@@ -101,160 +105,177 @@ def verifyUser(email):
 @permission_classes([AllowAny, ])
 class leaderboard(generics.GenericAPIView):
     def get(self, request, format=None):
-        p = Player.objects.order_by("-score", "submit_time")
-        current_rank = 1
-        players_array = []
-        for player in p:
-            player.rank = current_rank
-            players_array.append({
-                "name": player.name,
-                "rank": player.rank,
-                "score": player.score,
-                "image": player.imageLink,
-            })
-            current_rank += 1
-        return Response({"standings": players_array, "safe": False})
-
+        if(siteActive()):
+            p = Player.objects.order_by("-score", "submit_time")
+            current_rank = 1
+            players_array = []
+            for player in p:
+                player.rank = current_rank
+                players_array.append({
+                    "name": player.name,
+                    "rank": player.rank,
+                    "score": player.score,
+                    "image": player.imageLink,
+                })
+                current_rank += 1
+            return Response({"standings": players_array, "safe": False})
+        else:
+            return Response({"message":"The site is active yet. Try again at 10PM on 17th Oct.","status":600})
 
 @permission_classes([AllowAny, ])
 class Register(generics.GenericAPIView):
     serializer_class = CreateUserSerializer
 
     def post(self, request, *args, **kwargs):
-        if request.data.get('type') == '1':
-            res = verifyGoogleToken(request.data.get('accesstoken'))
-        else:
-            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
-                'userID'))
-        if res['status'] == 404:
-            return Response({
-                "status": 404,
-                "message": "Token expired."
-            })
-        else:
-            if verifyUser(res['email']) == False:
-                serializer = self.get_serializer(data=res)
-                serializer.is_valid(raise_exception=True)
-                user = serializer.save()
-                player = Player.objects.create(
-                    name=res['username'], email=res['email'], imageLink=res['image'])
+        if(siteActive()):
+            if request.data.get('type') == '1':
+                res = verifyGoogleToken(request.data.get('accesstoken'))
+            else:
+                res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
+                    'userID'))
+            if res['status'] == 404:
                 return Response({
-                    "user": serializer.data,
-                    "token": AuthToken.objects.create(user)[1],
-                    "status": 200
+                    "status": 404,
+                    "message": "Token expired."
                 })
             else:
-                return Response({"message": "Email Already Registered!", "status": 402})
-
+                if verifyUser(res['email']) == False:
+                    serializer = self.get_serializer(data=res)
+                    serializer.is_valid(raise_exception=True)
+                    user = serializer.save()
+                    player = Player.objects.create(
+                        name=res['username'], email=res['email'], imageLink=res['image'])
+                    return Response({
+                        "user": serializer.data,
+                        "token": AuthToken.objects.create(user)[1],
+                        "status": 200
+                    })
+                else:
+                    return Response({"message": "Email Already Registered!", "status": 402})
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})
 
 @permission_classes([AllowAny, ])
 class Login(generics.GenericAPIView):
     serializer_class = PlayerSerializer
 
     def post(self, request, *args, **kwargs):
-        if request.data.get('type') == '1':
-            res = verifyGoogleToken(request.data.get('accesstoken'))
-        else:
-            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
-                'userID'))
-        if res['status'] == 404:
-            return Response({
-                "status": 404,
-                "message": "Token expired."
-            })
-        else:
-            if verifyUser(res['email']) == True:
-                print(res)
-                user = User.objects.get(username=res['username'])
-                player = Player.objects.get(name=res['username'])
-                serializer = self.get_serializer(player)
+        if(siteActive()):
+            if request.data.get('type') == '1':
+                res = verifyGoogleToken(request.data.get('accesstoken'))
+            else:
+                res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
+                    'userID'))
+            if res['status'] == 404:
                 return Response({
-                    "user": serializer.data,
-                    "token": AuthToken.objects.create(user)[1],
-                    "status": 200
+                    "status": 404,
+                    "message": "Token expired."
                 })
             else:
-                return Response({
-                    "message": "Email is not registered!",
-                    "status": 401
-                })
+                if verifyUser(res['email']) == True:
+                    print(res)
+                    user = User.objects.get(username=res['username'])
+                    player = Player.objects.get(name=res['username'])
+                    serializer = self.get_serializer(player)
+                    return Response({
+                        "user": serializer.data,
+                        "token": AuthToken.objects.create(user)[1],
+                        "status": 200
+                    })
+                else:
+                    return Response({
+                        "message": "Email is not registered!",
+                        "status": 401
+                    })
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})            
 
 
 @permission_classes([IsAuthenticated, ])
 class getRound(APIView):
     def get(self, request, format=None):
-        player = Player.objects.get(name=request.user.username)
-        try:
-            curr_round = Round.objects.get(round_number=player.roundNo)
-            serializer = RoundSerializer(curr_round)
-            centre = centrePoint(curr_round)
-            return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
-        except:
-            if Round.DoesNotExist:
-                return Response({"message": "Finished!", "status": 404, "detail": 1})
-        return Response({"data": None})
+        if(siteActive()):
+            player = Player.objects.get(name=request.user.username)
+            try:
+                curr_round = Round.objects.get(round_number=player.roundNo)
+                serializer = RoundSerializer(curr_round)
+                centre = centrePoint(curr_round)
+                return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
+            except:
+                if Round.DoesNotExist:
+                    return Response({"message": "Finished!", "status": 404, "detail": 1})
+            return Response({"data": None})
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})
 
 
 @permission_classes([IsAuthenticated])
 class checkRound(APIView):
     def post(self, request, *args, **kwargs):
-        try:
-            player = Player.objects.get(name=request.user.username)
-            round = Round.objects.get(
-                round_number=(player.roundNo))
+        if(siteActive()):
+            try:
+                player = Player.objects.get(name=request.user.username)
+                round = Round.objects.get(
+                    round_number=(player.roundNo))
 
-            if round.checkAnswer(request.data.get("answer")):
-                player.score += 10
-                player.roundNo += 1
-                player.submit_time = timezone.now()
-                player.save()
-                return Response({"status": 200, "detail": 1})
-            else:
-                return Response({"status": 500, "detail": 1})
-        except (Player.DoesNotExist, Round.DoesNotExist):
-            return Response({"status": 404, "detail": 1})
-
+                if round.checkAnswer(request.data.get("answer")):
+                    player.score += 10
+                    player.roundNo += 1
+                    player.submit_time = timezone.now()
+                    player.save()
+                    return Response({"status": 200, "detail": 1})
+                else:
+                    return Response({"status": 500, "detail": 1})
+            except (Player.DoesNotExist, Round.DoesNotExist):
+                return Response({"status": 404, "detail": 1})
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})
 
 @permission_classes([IsAuthenticated])
 class getClue(APIView):
     def get(self, request, format=None):
-        try:
-            player = Player.objects.get(name=request.user.username)
-            round = Round.objects.get(round_number=(player.roundNo))
-            response = []
-            clues = Clue.objects.filter(round=round)
-            for clue in clues:
-                if player.checkClue(clue.id):
-                    response.append({
-                        "id": clue.id,
-                        "question": clue.question,
-                        "position": clue.getPosition(),
-                        "solved": True
-                    })
-                else:
-                    response.append(
-                        {"id": clue.id, "question": clue.question, "solved": False}
-                    )
-            return Response({"clues": response, "status": 200, "detail": 1})
-        except (Player.DoesNotExist, Round.DoesNotExist):
-            return Response({"status": 404, "detail": 1})
+        if(siteActive()):
+            try:
+                player = Player.objects.get(name=request.user.username)
+                round = Round.objects.get(round_number=(player.roundNo))
+                response = []
+                clues = Clue.objects.filter(round=round)
+                for clue in clues:
+                    if player.checkClue(clue.id):
+                        response.append({
+                            "id": clue.id,
+                            "question": clue.question,
+                            "position": clue.getPosition(),
+                            "solved": True
+                        })
+                    else:
+                        response.append(
+                            {"id": clue.id, "question": clue.question, "solved": False}
+                        )
+                return Response({"clues": response, "status": 200, "detail": 1})
+            except (Player.DoesNotExist, Round.DoesNotExist):
+                return Response({"status": 404, "detail": 1})
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})
 
 
 @permission_classes([IsAuthenticated])
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
-        try:
-            player = Player.objects.get(name=request.user.username)
+        if(siteActive()):
             try:
-                clue = Clue.objects.get(pk=int(request.data.get("clue_id")))
-                if clue.checkAnswer(request.data.get("answer")):
-                    player.putClues(clue.pk)
-                    player.save()
-                    return Response({"status": 200, "position": clue.getPosition(), "detail": 1})
-                else:
-                    return Response({"status": 500, "detail": 1})
-            except (ValueError, Clue.DoesNotExist):
-                return Response({"status": 403, "message": "Wrong Clue ID."})
-        except Player.DoesNotExist:
-            return Response({"data": None, "status": 404})
-
+                player = Player.objects.get(name=request.user.username)
+                try:
+                    clue = Clue.objects.get(pk=int(request.data.get("clue_id")))
+                    if clue.checkAnswer(request.data.get("answer")):
+                        player.putClues(clue.pk)
+                        player.save()
+                        return Response({"status": 200, "position": clue.getPosition(), "detail": 1})
+                    else:
+                        return Response({"status": 500, "detail": 1})
+                except (ValueError, Clue.DoesNotExist):
+                    return Response({"status": 403, "message": "Wrong Clue ID."})
+            except Player.DoesNotExist:
+                return Response({"data": None, "status": 404})
+        else:
+            return Response({"message":"The site isn't active yet. Try again at 10PM on 17th Oct.","status":600})
