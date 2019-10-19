@@ -189,9 +189,8 @@ class getRound(APIView):
             serializer = RoundSerializer(curr_round)
             centre = centrePoint(curr_round)
             return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
-        except:
-            if Round.DoesNotExist:
-                return Response({"message": "Finished!", "status": 404, "detail": 1})
+        except Round.DoesNotExist:
+            return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})
 
 
