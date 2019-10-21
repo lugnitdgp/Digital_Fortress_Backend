@@ -31,7 +31,7 @@ def LeaderBoard(request):
         response["Content-Disposition"] = 'attachment; filename="leaderboards.csv"'
         writer = csv.writer(response)
         for player in Player.objects.order_by("-score", "submit_time"):
-            writer.writerow([player.name, player.email])
+            writer.writerow([player.name, player.email, player.score])
         return response
     else:
         return HttpResponse("You are not authorized to see this page!")
@@ -256,4 +256,3 @@ class putClue(APIView):
                 return Response({"status": 403, "message": "Wrong Clue ID."})
         except Player.DoesNotExist:
             return Response({"data": None, "status": 404})
-
