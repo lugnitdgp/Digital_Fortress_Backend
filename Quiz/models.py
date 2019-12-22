@@ -3,6 +3,17 @@ from django.db import models
 # Create your models here.
 
 
+class Location(models.Model):
+    name = models.CharField(max_length=255)
+    lat = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+    long = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Round(models.Model):
     round_number = models.IntegerField(default=1)
     question = models.CharField(max_length=750)
@@ -31,7 +42,8 @@ class Round(models.Model):
 class Clue(models.Model):
     question = models.CharField(max_length=750)
     answer = models.CharField(max_length=200)
-    position = models.CharField(max_length=200, blank=True)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, blank=True, null=True)
     round = models.ForeignKey('Round', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -54,9 +66,9 @@ class Clue(models.Model):
         return False
 
     def getPosition(self):
-        pos_arr = self.position.split(",")
-        new_arr = [float(val) for val in pos_arr]
-        return new_arr
+        lat = self.location.lat
+        long = self.location.long
+        return [lat, long]
 
 
 class Player(models.Model):
