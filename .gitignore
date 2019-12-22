@@ -1,9 +1,24 @@
-*/__pycache__/
-Quiz/*/__pycache__/
-db.sqlite3
-/media
+.env
+#VS Code
 .vscode/
-static/
+settings.json
 
-env/
-*.env
+# Django related 
+# src/<yourproject>/settings/local.py
+# static-cdn/  # any collected static files 
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+
+##
+db.json
+##
+static/*
+##
+dump.json
+##
+backend/migrations/00*
