@@ -1,12 +1,13 @@
+# DigitalFortress Backend
 This is the backend repository built on Django framework and utilises Django Rest Framework for a REST API.
 
-**How to run:**
+## How to run during development**
 
-1. First, install the requiremnents by running the command **pip install -r requirements.txt**
-2. Then, apply the migrations using **python manange.py migrate**
-3. Run the server using **python manage.py runserver**
+1. First, install the requiremnents by running the command `pip install -r requirements.txt`
+2. Then, apply the migrations using `python manange.py migrate`
+3. Run the server using `python manage.py runserver --settings=Digital_Fortress_Backend.dev_settings`
 
-**Status Codes:**
+### Status Codes:
 
 200 : Success
 
@@ -20,7 +21,7 @@ This is the backend repository built on Django framework and utilises Django Res
 
 500 : Wrong Answer
 
-The API links:
+### The API Routes:
 
 quiz/auth/register - For registering a user
 
