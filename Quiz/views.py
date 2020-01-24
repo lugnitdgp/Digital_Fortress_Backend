@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes, APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import HttpResponse, JsonResponse
-from .models import Round, Player, Clue
+from .models import Round, Player, Clue, duration
 import datetime
 import requests as r
 import time
@@ -20,10 +20,17 @@ from django.utils import timezone
 import urllib
 from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
 from decouple import config
-
+import decimal
 
 # Create your views here.
 
+def check_duration():
+    tm = timezone.now()
+    obj = duration.objects.all().first()
+    if tm > obj.start_time and tm < obj.end_time:
+        return False
+    else:
+        return True    
 
 def LeaderBoard(request):
     if request.GET.get("password") == config('DOWNLOAD', cast=str):
@@ -76,8 +83,8 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
 
 def centrePoint(roundNo):
     clues = Clue.objects.filter(round=roundNo)
-    x = 0.0
-    y = 0.0
+    x = decimal.Decimal(0.0)
+    y = decimal.Decimal(0.0)
     count = 0
     for clue in clues:
         pos = clue.getPosition()
@@ -165,8 +172,8 @@ class Login(generics.GenericAPIView):
         else:
             if verifyUser(res['email']) == True:
                 print(res)
-                user = User.objects.get(username=res['username'])
-                player = Player.objects.get(name=res['username'])
+                user = User.objects.get(email=res['email'])
+                player = Player.objects.get(email=res['email'])
                 serializer = self.get_serializer(player)
                 return Response({
                     "user": serializer.data,
@@ -183,6 +190,8 @@ class Login(generics.GenericAPIView):
 @permission_classes([IsAuthenticated, ])
 class getRound(APIView):
     def get(self, request, format=None):
+        if check_duration():
+            return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         player = Player.objects.get(name=request.user.username)
         try:
             curr_round = Round.objects.get(round_number=player.roundNo)
@@ -197,6 +206,8 @@ class getRound(APIView):
 @permission_classes([IsAuthenticated])
 class checkRound(APIView):
     def post(self, request, *args, **kwargs):
+        if check_duration():
+            return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
             round = Round.objects.get(
@@ -217,6 +228,8 @@ class checkRound(APIView):
 @permission_classes([IsAuthenticated])
 class getClue(APIView):
     def get(self, request, format=None):
+        if check_duration():
+            return Response({"message": "Quest Over!", "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
             round = Round.objects.get(round_number=(player.roundNo))
@@ -242,6 +255,8 @@ class getClue(APIView):
 @permission_classes([IsAuthenticated])
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
+        if check_duration():
+            return Response({"message": "Quest Over!", "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
             try:

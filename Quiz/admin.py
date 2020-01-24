@@ -1,6 +1,6 @@
 from django.contrib import admin
 # Register your models here.
-from .models import Round, Clue, Player, Location
+from .models import Round, Clue, Player, Location, duration
 from django.conf import settings
 
 
@@ -42,3 +42,4 @@ admin.site.register(Clue)
 admin.site.register(Round)
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(duration)

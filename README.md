@@ -19,6 +19,8 @@ This is the backend repository built on Django framework and utilises Django Res
 
 403 : Wrong Clue ID.
 
+410 : Quiz has not started Yet.
+
 500 : Wrong Answer
 
 ### The API Routes:
