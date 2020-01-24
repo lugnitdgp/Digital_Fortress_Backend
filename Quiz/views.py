@@ -20,7 +20,7 @@ from django.utils import timezone
 import urllib
 from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
 from decouple import config
-import decimal
+from decimal import Decimal
 
 # Create your views here.
 
@@ -38,7 +38,7 @@ def LeaderBoard(request):
         response["Content-Disposition"] = 'attachment; filename="leaderboards.csv"'
         writer = csv.writer(response)
         for player in Player.objects.order_by("-score", "submit_time"):
-            writer.writerow([player.name, player.email, player.score])
+            writer.writerow([player.first_name, player.email, player.score])
         return response
     else:
         return HttpResponse("You are not authorized to see this page!")
@@ -55,7 +55,8 @@ def verifyGoogleToken(token):
 
         return {
             "email": idinfo['email'],
-            "username": idinfo['name'],
+            "username": idinfo['email'],
+            "first_name": idinfo['name'],
             "image": idinfo['picture'],
             "status": 200
         }
@@ -75,7 +76,8 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
         idInfo = r.get(url=url, params=parameters).json()
         return {
             "email": idInfo['email'],
-            "username": idInfo['name'],
+            "username": idInfo['email'],
+            "first_name": idInfo['name'],
             "image": idInfo['picture']['data']['url'],
             'status': 200
         }
@@ -83,8 +85,8 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
 
 def centrePoint(roundNo):
     clues = Clue.objects.filter(round=roundNo)
-    x = decimal.Decimal(0.0)
-    y = decimal.Decimal(0.0)
+    x = Decimal(0.0)
+    y = Decimal(0.0)
     count = 0
     for clue in clues:
         pos = clue.getPosition()
@@ -92,8 +94,8 @@ def centrePoint(roundNo):
         y += pos[1]
         count += 1
     centre = []
-    centre.append(x/count)
-    centre.append(y/count)
+    centre.append(x/Decimal(count))
+    centre.append(y/Decimal(count))
     return centre
 
 
@@ -114,7 +116,7 @@ class leaderboard(generics.GenericAPIView):
         for player in p:
             player.rank = current_rank
             players_array.append({
-                "name": player.name,
+                "name": player.first_name,
                 "rank": player.rank,
                 "score": player.score,
                 "image": player.imageLink,
@@ -144,7 +146,7 @@ class Register(generics.GenericAPIView):
                 serializer.is_valid(raise_exception=True)
                 user = serializer.save()
                 player = Player.objects.create(
-                    name=res['username'], email=res['email'], imageLink=res['image'])
+                    name=res['username'],first_name=res['first_name'], email=res['email'], imageLink=res['image'])
                 return Response({
                     "user": serializer.data,
                     "token": AuthToken.objects.create(user)[1],
@@ -229,7 +231,7 @@ class checkRound(APIView):
 class getClue(APIView):
     def get(self, request, format=None):
         if check_duration():
-            return Response({"message": "Quest Over!", "status": 410, "detail": 1})
+            return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
             round = Round.objects.get(round_number=(player.roundNo))
@@ -256,7 +258,7 @@ class getClue(APIView):
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
         if check_duration():
-            return Response({"message": "Quest Over!", "status": 410, "detail": 1})
+            return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
             try:

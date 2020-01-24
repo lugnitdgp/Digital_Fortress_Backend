@@ -73,6 +73,7 @@ class Clue(models.Model):
 
 class Player(models.Model):
     name = models.CharField(max_length=200, blank=True)
+    first_name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(max_length=254)
     imageLink = models.CharField(max_length=200)
     score = models.IntegerField(default=0)
