@@ -28,4 +28,4 @@ class PlayerSerializer(serializers.ModelSerializer):
 class RoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Round
-        fields = ('question', 'round_number')
+        fields = ('question', 'round_number','audio','image')

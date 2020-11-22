@@ -160,13 +160,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
+
+
+#CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+#CORS_ALLOW_CREDENTIALS = True
+
+
+CSRF_TRUSTED_ORIGINS = ['dfapi.weblikate.com','localhost:8000']
+CSRF_COOKIE_DOMAIN=  'dfapi.weblikate.com'
+
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8000','http://localhost:5000',
+    'localhost:8000','localhost:5000','dfapi.weblikate.com',
 ]
+'''
 CORS_ORIGIN_REGEX_WHITELIST = [
-    'http://localhost:8000','http://localhost:5000',
+    'http://localhost:8000','http://localhost:5000','https://dfapi.weblikate.com',
 ]
+'''
