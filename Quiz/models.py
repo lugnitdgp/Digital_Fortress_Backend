@@ -17,7 +17,9 @@ class Location(models.Model):
 class Round(models.Model):
     round_number = models.IntegerField(default=1)
     question = models.CharField(max_length=750)
+    audio=models.FileField(upload_to='media/audios',blank=True)
     answer = models.CharField(max_length=200)
+    image=models.ImageField(upload_to='media/images',blank=True)
 
     def __str__(self):
         return str(self.round_number)
@@ -41,6 +43,8 @@ class Round(models.Model):
 
 class Clue(models.Model):
     question = models.CharField(max_length=750)
+    audio=models.FileField(upload_to='media/audios',blank=True)
+    image=models.ImageField(upload_to='media/images',blank=True)
     answer = models.CharField(max_length=200)
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, blank=True, null=True)
