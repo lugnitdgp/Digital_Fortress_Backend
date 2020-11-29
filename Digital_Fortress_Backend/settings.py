@@ -170,13 +170,15 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 #CORS_ALLOW_CREDENTIALS = True
 
-
+'''
 CSRF_TRUSTED_ORIGINS = ['dfapi.weblikate.com','localhost:8000','localhost:5000','digitalfortress-frontend.vercel.app']
+'''
 CSRF_COOKIE_DOMAIN=  'dfapi.weblikate.com'
-
+'''
 CORS_ORIGIN_WHITELIST = [
     'localhost:8000','localhost:5000','dfapi.weblikate.com','digitalfortress-frontend.vercel.app'
 ]
+'''
 '''
 CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:8000','http://localhost:5000','https://dfapi.weblikate.com',
