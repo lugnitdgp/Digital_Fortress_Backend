@@ -21,7 +21,7 @@ import urllib
 from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
 from decouple import config
 from decimal import Decimal
-
+from decouple import config
 # Create your views here.
 
 def check_duration():
@@ -82,6 +82,35 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
             'status': 200
         }
 
+def verifyGithubToken(accessCode):
+    try: 
+        tokenurl= "https://github.com/login/oauth/access_token"
+        params = {
+            "client_id": config('client-id'),
+            "client_secret":config('client-secret'),
+            "code": accessCode,
+            "redirect_uri":config('redirect-uri')
+        }
+        headers = {
+            "Accept":"application/json"
+        }
+        accesscode= r.post(url=tokenurl,params=params)
+        
+        userurl = "https://api.github.com/user"
+        headers = {
+            "Authorisation" : "Bearer {}".format(accesscode["access_token"])
+        }
+        userinfo=r.get(url=url, headers=headers)
+
+        return {
+            "email":userinfo['email'],
+            "username":userinfo['email'],
+            "first_name":userinfo['name'],
+            "image":userinfo['avatar_url'],
+            "status":200
+        }
+    except ValueError:
+        return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
 
 def centrePoint(roundNo):
     clues = Clue.objects.filter(round=roundNo)
@@ -133,8 +162,7 @@ class Register(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
-                'userID'))
+            res = veriyGithubToken(request.data.get('accesscode'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
@@ -164,8 +192,7 @@ class Login(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.data.get('accesstoken'), request.data.get('expiration_time'), request.data.get(
-                'userID'))
+            res = veriyGithubToken(request.data.get('accesscode'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
