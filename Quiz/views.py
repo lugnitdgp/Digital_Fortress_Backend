@@ -232,7 +232,7 @@ class getuserscore(APIView):
         ps= Player.objects.order_by("-score", "submit_time")
         current_rank = 1
         try:
-           player= player.objects.get(name=request.user.username)
+           player= Player.objects.get(name=request.user.username)
            for p in ps:
                if p.first_name == player.first_name:     
                    return Response({"status":200,"score":player.score,"rank":current_rank,"name":player.first_name,"email":player.email})
