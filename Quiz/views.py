@@ -92,7 +92,7 @@ def verifyGithubToken(accessCode):
             "client_id": config('GITHUB_CLIENT_ID'),
             "client_secret":config('GITHUB_CLIENT_SECRET'),
             "code": accessCode,
-            "redirect_uri":"df.nitgplug.org"
+            "redirect_uri":"df.nitdgplug.org"
         }
         headers = {
             "Accept":"application/json"
