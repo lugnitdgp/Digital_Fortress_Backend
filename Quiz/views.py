@@ -184,7 +184,14 @@ class Register(generics.GenericAPIView):
                     "status": 200
                 })
             else:
-                return Response({"message": "Email Already Registered!", "status": 402})
+                user = User.objects.get(email=res['email'])
+                player = Player.objects.get(email=res['email'])
+                serializer = self.get_serializer(player)
+                return Response({
+                    "user": serializer.data,
+                    "token": AuthToken.objects.create(user)[1],
+                    "status": 200
+                })
 
 
 @permission_classes([AllowAny, ])
