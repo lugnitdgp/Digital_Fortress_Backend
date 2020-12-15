@@ -100,7 +100,7 @@ def verifyGithubToken(accessCode):
         headers = {
             "Authorisation" : "Bearer {}".format(accesscode["access_token"])
         }
-        userinfo=r.get(url=url, headers=headers).json()
+        userinfo=r.get(url=userurl, headers=headers).json()
 
         return {
             "email":userinfo['email'],
