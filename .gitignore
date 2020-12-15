@@ -1,4 +1,6 @@
 .env
+/env
+env
 #VS Code
 .vscode/
 settings.json

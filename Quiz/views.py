@@ -83,31 +83,35 @@ def verifyFacebookToken(accesstoken, expiration_time, userID):
         }
 
 def verifyGithubToken(accessCode):
-    tokenurl= "https://github.com/login/oauth/access_token"
-    params = {
-        "client_id": config('client-id'),
-        "client_secret":config('client-secret'),
-        "code": accessCode,
-        "redirect_uri":config('redirect-uri')
-    }
-    headers = {
-        "Accept":"application/json"
-    }
-    accesscode= r.post(url=tokenurl,params=params,headers=headers).json()
-    
-    userurl = "https://api.github.com/user"
-    headers = {
-        "Authorization" : "Bearer {}".format(accesscode['access_token'])
-    }
-    userinfo=r.get(url=userurl, headers=headers).json()
+    try:
+        tokenurl= "https://github.com/login/oauth/access_token"
+        params = {
+            "client_id": config('GITHUB_CLIENT_ID'),
+            "client_secret":config('GITHUB_CLIENT_SECRET'),
+            "code": accessCode,
+            "redirect_uri":"http://localhost:5000/"
+        }
+        headers = {
+            "Accept":"application/json"
+        }
+        accesscode= r.post(url=tokenurl,params=params,headers=headers).json()
+        
+        userurl = "https://api.github.com/user"
+        headers = {
+            "Authorization" : "Bearer {}".format(accesscode['access_token'])
+        }
+        userinfo=r.get(url=userurl, headers=headers).json()
 
-    return {
-        "email":userinfo['email'],
-        "username":userinfo['email'],
-        "first_name":userinfo['name'],
-        "image":userinfo['avatar_url'],
-        "status":200
-    }
+        return {
+            "email":userinfo['email'],
+            "username":userinfo['email'],
+            "first_name":userinfo['name'],
+            "image":userinfo['avatar_url'],
+            "status":200
+        } 
+    except ValueError:
+        return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
+
 def centrePoint(roundNo):
     clues = Clue.objects.filter(round=roundNo)
     x = Decimal(0.0)
