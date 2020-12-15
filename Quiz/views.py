@@ -94,13 +94,13 @@ def verifyGithubToken(accessCode):
         headers = {
             "Accept":"application/json"
         }
-        accesscode= r.post(url=tokenurl,params=params)
+        accesscode= r.post(url=tokenurl,params=params).json()
         
         userurl = "https://api.github.com/user"
         headers = {
             "Authorisation" : "Bearer {}".format(accesscode["access_token"])
         }
-        userinfo=r.get(url=url, headers=headers)
+        userinfo=r.get(url=url, headers=headers).json()
 
         return {
             "email":userinfo['email'],
