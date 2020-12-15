@@ -186,7 +186,7 @@ class Register(generics.GenericAPIView):
             else:
                 user = User.objects.get(email=res['email'])
                 player = Player.objects.get(email=res['email'])
-                serializer = self.get_serializer(player)
+                serializer = PlayerSerializer(player)
                 return Response({
                     "user": serializer.data,
                     "token": AuthToken.objects.create(user)[1],
