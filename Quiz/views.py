@@ -226,7 +226,20 @@ class checkRound(APIView):
         except (Player.DoesNotExist, Round.DoesNotExist):
             return Response({"status": 404, "detail": 1})
 
-
+@permission_classes([isAuthenticated])
+class getuserscore(APIView):
+    def get(self,request):
+        ps= Player.objects.order_by("-score", "submit_time")
+        current_rank = 1
+        try:
+           player= player.objects.get(name=request.user.username)
+           for p in ps:
+               if p.first_name == player.first_name:     
+                   return Response({"status":200,"score":player.score,"rank":current_rank,"name":player.first_name,"email":player.email})
+               else:
+                   current_rank += 1        
+        except (Player.DoesNotExist):
+            return Response({"status":404, "message":"user not found"})
 @permission_classes([IsAuthenticated])
 class getClue(APIView):
     def get(self, request, format=None):
