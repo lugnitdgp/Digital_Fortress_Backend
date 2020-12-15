@@ -84,6 +84,7 @@ class Player(models.Model):
     roundNo = models.IntegerField(default=1)
     current_hints = models.CharField(max_length=200, blank=True)
     submit_time = models.DateTimeField(auto_now_add=True)
+    isStaff = models.BooleanField(default = 0)
 
     def __str__(self):
         return self.name

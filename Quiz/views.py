@@ -38,6 +38,9 @@ def LeaderBoard(request):
         response["Content-Disposition"] = 'attachment; filename="leaderboards.csv"'
         writer = csv.writer(response)
         for player in Player.objects.order_by("-score", "submit_time"):
+            if player.isStaff == True:
+                continue
+            print([player.first_name, player.email, player.score])
             writer.writerow([player.first_name, player.email, player.score])
         return response
     else:
@@ -146,6 +149,8 @@ class leaderboard(generics.GenericAPIView):
         current_rank = 1
         players_array = []
         for player in p:
+            if player.isStaff == True:
+                continue
             player.rank = current_rank
             players_array.append({
                 "name": player.first_name,
@@ -271,6 +276,9 @@ class getuserscore(APIView):
         try:
            player= Player.objects.get(name=request.user.username)
            for p in ps:
+               if player.isStaff == True:
+                   print('ok')
+                   continue
                if p.first_name == player.first_name:     
                    return Response({"status":200,"score":player.score,"rank":current_rank,"name":player.first_name,"email":player.email})
                else:
