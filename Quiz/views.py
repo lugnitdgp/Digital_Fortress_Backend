@@ -162,7 +162,7 @@ class Register(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = veriyGithubToken(request.data.get('accesscode'))
+            res = verifyGithubToken(request.data.get('accesscode'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
@@ -192,7 +192,7 @@ class Login(generics.GenericAPIView):
         if request.data.get('type') == '1':
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = veriyGithubToken(request.data.get('accesscode'))
+            res = verifyGithubToken(request.data.get('accesscode'))
         if res['status'] == 404:
             return Response({
                 "status": 404,
