@@ -94,8 +94,11 @@ def verifyGithubToken(accessCode):
         headers = {
             "Accept":"application/json"
         }
-        accesscode= r.post(url=tokenurl,params=params,headers=headers).json()
         
+        accesscode= r.post(url=tokenurl,params=params,headers=headers).json()
+        print(accesscode)
+        if not "access_token" in accesscode.keys():
+            return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
         userurl = "https://api.github.com/user"
         headers = {
             "Authorization" : "Bearer {}".format(accesscode['access_token'])
