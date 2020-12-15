@@ -226,7 +226,7 @@ class checkRound(APIView):
         except (Player.DoesNotExist, Round.DoesNotExist):
             return Response({"status": 404, "detail": 1})
 
-@permission_classes([isAuthenticated])
+@permission_classes([IsAuthenticated])
 class getuserscore(APIView):
     def get(self,request):
         ps= Player.objects.order_by("-score", "submit_time")

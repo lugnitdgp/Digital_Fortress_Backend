@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LeaderBoard, getClue, getRound, putClue, checkRound, leaderboard, Login, Register
+from .views import LeaderBoard, getClue, getRound, putClue, checkRound, leaderboard, Login, Register,getuserscore
 from knox.views import LogoutView
 urlpatterns = [
     path('leaderboard', leaderboard.as_view(), name='leaderboard'),
@@ -11,5 +11,6 @@ urlpatterns = [
     path('checkClue', putClue.as_view(), name="checkClue"),
     path('auth/login', Login.as_view(), name="login"),
     path('auth/register', Register.as_view(), name="register"),
-    path('auth/logout', LogoutView.as_view(), name="logout")
+    path('auth/logout', LogoutView.as_view(), name="logout"),
+    path('user',getuserscore.as_view(),name="user")
 ]
