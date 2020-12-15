@@ -93,7 +93,7 @@ def verifyGithubToken(accessCode):
     headers = {
         "Accept":"application/json"
     }
-    accesscode= r.post(url=tokenurl,params=params).json()
+    accesscode= r.post(url=tokenurl,params=params,headers=headers).json()
     
     userurl = "https://api.github.com/user"
     headers = {
