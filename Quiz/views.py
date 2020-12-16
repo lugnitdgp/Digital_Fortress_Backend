@@ -103,14 +103,17 @@ def verifyGithubToken(accessCode):
         if not "access_token" in accesscode.keys():
             return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
         userurl = "https://api.github.com/user"
+        emailurl="https://api.github.com/user/emails"
         headers = {
             "Authorization" : "Bearer {}".format(accesscode['access_token'])
         }
         userinfo=r.get(url=userurl, headers=headers).json()
+        emailsinfo=r.get(url=emailurl,headers=headers).json()
         print(userinfo)
+        print(emailsinfo)
         return {
-            "email":userinfo['email'],
-            "username":userinfo['email'],
+            "email":emailsinfo[0]['email'],
+            "username":emailsinfo[0]['email'],
             "first_name":userinfo['name'],
             "image":userinfo['avatar_url'],
             "status":200
