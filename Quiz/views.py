@@ -240,7 +240,7 @@ class Login(generics.GenericAPIView):
 @permission_classes([IsAuthenticated, ])
 class getRound(APIView):
     def get(self, request, format=None):
-        if check_duration():
+        if check_duration(request.user.username):
             return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         player = Player.objects.get(name=request.user.username)
         try:
