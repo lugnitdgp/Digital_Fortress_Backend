@@ -24,9 +24,12 @@ from decimal import Decimal
 from decouple import config
 # Create your views here.
 
-def check_duration():
+def check_duration(username):
     tm = timezone.now()
     obj = duration.objects.all().first()
+    player = Player.objects.get(name=username)
+    if player.isStaff:
+        return True
     if tm > obj.start_time and tm < obj.end_time:
         return False
     else:
@@ -253,7 +256,7 @@ class getRound(APIView):
 @permission_classes([IsAuthenticated])
 class checkRound(APIView):
     def post(self, request, *args, **kwargs):
-        if check_duration():
+        if check_duration(request.user.username):
             return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
@@ -261,6 +264,8 @@ class checkRound(APIView):
                 round_number=(player.roundNo))
 
             if round.checkAnswer(request.data.get("answer")):
+                if duration.objects.all().first().leaderboard_freeze:
+                    return Response({"status": 200, "detail": 1})
                 player.score += 10
                 player.roundNo += 1
                 player.submit_time = timezone.now()
@@ -291,7 +296,7 @@ class getuserscore(APIView):
 @permission_classes([IsAuthenticated])
 class getClue(APIView):
     def get(self, request, format=None):
-        if check_duration():
+        if check_duration(request.user.username):
             return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)
@@ -318,7 +323,7 @@ class getClue(APIView):
 @permission_classes([IsAuthenticated])
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
-        if check_duration():
+        if check_duration(request.user.username):
             return Response({"start_time":duration.objects.all().first().start_time ,"end_time":duration.objects.all().first().end_time , "status": 410, "detail": 1})
         try:
             player = Player.objects.get(name=request.user.username)

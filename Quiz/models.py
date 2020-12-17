@@ -111,6 +111,7 @@ class Player(models.Model):
 class duration(models.Model):
     start_time = models.DateTimeField(default=datetime.now)
     end_time = models.DateTimeField(default=datetime.now)
+    leaderboard_freeze= models.BooleanField(default = 0)
 
     def __str__(self): 
         return "Duration" 
