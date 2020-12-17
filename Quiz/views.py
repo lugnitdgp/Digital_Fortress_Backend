@@ -29,7 +29,7 @@ def check_duration(username):
     obj = duration.objects.all().first()
     player = Player.objects.get(name=username)
     if player.isStaff:
-        return True
+        return False
     if tm > obj.start_time and tm < obj.end_time:
         return False
     else:
