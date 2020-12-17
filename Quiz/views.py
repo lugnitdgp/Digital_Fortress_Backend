@@ -265,6 +265,9 @@ class checkRound(APIView):
 
             if round.checkAnswer(request.data.get("answer")):
                 if duration.objects.all().first().leaderboard_freeze:
+                    player.roundNo += 1
+                    player.submit_time = timezone.now()
+                    player.save()
                     return Response({"status": 200, "detail": 1})
                 player.score += 10
                 player.roundNo += 1
