@@ -24,18 +24,13 @@ class Round(models.Model):
     def __str__(self):
         return str(self.round_number)
 
-    def transformAnswer(self):
-        answer_array = self.answer.split(",")
-        for index, answer in enumerate(answer_array):
-            temp = answer.lower()
-            temp = temp.strip()
-            answer_array[index] = temp
-        return answer_array
-
     def checkAnswer(self, answer):
         answer = answer.lower().strip()
-        answers = self.transformAnswer()
+        answer = answer.replace(" ","")
+        answers = self.answer.split(",")
         for a in answers:
+            a = a.lower()
+            a = a.replace(" ","")
             if a == answer:
                 return True
         return False
@@ -53,18 +48,13 @@ class Clue(models.Model):
     def __str__(self):
         return self.question
 
-    def transformAnswer(self):
-        answer_array = self.answer.split(",")
-        for index, answer in enumerate(answer_array):
-            temp = answer.lower()
-            temp = temp.strip()
-            answer_array[index] = temp
-        return answer_array
-
     def checkAnswer(self, answer):
         answer = answer.lower().strip()
-        answers = self.transformAnswer()
+        answer = answer.replace(" ","")
+        answers = self.answer.split(",")
         for a in answers:
+            a = a.lower()
+            a = a.replace(" ","")
             if a == answer:
                 return True
         return False
