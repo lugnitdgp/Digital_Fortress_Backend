@@ -28,8 +28,6 @@ def check_duration(username):
     tm = timezone.now()
     obj = duration.objects.all().first()
     player = Player.objects.get(name=username)
-    if player.isStaff:
-        return True
     if tm > obj.start_time and tm < obj.end_time:
         return False
     else:
