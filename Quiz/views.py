@@ -34,6 +34,13 @@ def check_duration(username):
         return False
     else:
         return True    
+def isHidden():
+    tm = timezone.now()
+    obj = duration.objects.all().first()
+    if obj.leaderboard_hide == 1:
+        return True
+    else:
+        return False 
 
 def LeaderBoard(request):
     if request.GET.get("password") == config('DOWNLOAD', cast=str):
@@ -154,6 +161,11 @@ class leaderboard(generics.GenericAPIView):
         p = Player.objects.order_by("-score", "submit_time")
         current_rank = 1
         players_array = []
+        if isHidden() == 1:
+            status = 203
+            return Response({"standings": players_array, "safe": False, "status": status})
+        else:
+            status = 200
         for player in p:
             if player.isStaff == True:
                 continue
@@ -165,7 +177,7 @@ class leaderboard(generics.GenericAPIView):
                 "image": player.imageLink,
             })
             current_rank += 1
-        return Response({"standings": players_array, "safe": False})
+        return Response({"standings": players_array, "safe": False, "status": status})
 
 
 @permission_classes([AllowAny, ])
