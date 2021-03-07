@@ -299,12 +299,8 @@ class getuserscore(APIView):
         try:
            player= Player.objects.get(name=request.user.username)
            for p in ps:
-<<<<<<< HEAD
-               if p.isStaff == True:
-=======
                if player.isStaff == True:
                    print('ok')
->>>>>>> 2a9e5b5 (players marked staffs are now not shown on leaderboard)
                    continue
                if p.first_name == player.first_name:     
                    return Response({"status":200,"score":player.score,"rank":current_rank,"name":player.first_name,"email":player.email})
