@@ -11,7 +11,7 @@ Django==2.2.4
 django-cors-headers==3.0.2
 django-grappelli==2.13.1
 django-rest-knox==4.1.0
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 google-auth==1.6.3
 idna==2.8
 Pillow==8.0.1
