@@ -63,6 +63,7 @@ def verifyGoogleToken(token):
         idinfo = id_token.verify_oauth2_token(
             token, requests.Request(), CLIENT_ID)
 
+
         if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
             raise ValueError('Wrong issuer.')
 
@@ -259,7 +260,10 @@ class getRound(APIView):
             curr_round = Round.objects.get(round_number=player.roundNo)
             serializer = RoundSerializer(curr_round)
             centre = centrePoint(curr_round)
-            return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
+            if duration.objects.all().first().max_question>=player.roundNo:
+                return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
+            else:
+                return Response({"message": "Finished!", "status": 404, "detail": 1})
         except Round.DoesNotExist:
             return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})

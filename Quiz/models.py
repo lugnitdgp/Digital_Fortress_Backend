@@ -103,6 +103,7 @@ class duration(models.Model):
     end_time = models.DateTimeField(default=datetime.now)
     leaderboard_freeze= models.BooleanField(default = 0)
     leaderboard_hide = models.BooleanField(default = 0)
+    max_question=models.IntegerField(default=20)
 
 
     def __str__(self): 
