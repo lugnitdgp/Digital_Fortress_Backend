@@ -260,7 +260,7 @@ class getRound(APIView):
             curr_round = Round.objects.get(round_number=player.roundNo)
             serializer = RoundSerializer(curr_round)
             centre = centrePoint(curr_round)
-            if duration.objects.all().first().max_question>player.roundNo:
+            if duration.objects.all().first().max_question>=player.roundNo:
                 return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
             else:
                 return Response({"message": "Finished!", "status": 404, "detail": 1})
