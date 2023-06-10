@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG',default=False, cast=bool)
 
 #ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY')
 
@@ -109,7 +109,7 @@ DATABASES = {
             'NAME': config('DB_NAME'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
-            'HOST': 'db',
+            'HOST': 'localhost',
             'PORT': '',
         }
  }
