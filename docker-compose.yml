@@ -18,9 +18,9 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=dfuser
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=df
+      - POSTGRES_USER=
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=
 
   nginx:
     build: ./nginx
