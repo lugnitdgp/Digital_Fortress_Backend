@@ -7,6 +7,49 @@ This is the backend repository built on Django framework and utilises Django Res
 2. Then, apply the migrations using `python manange.py migrate`
 3. Run the server using `python manage.py runserver --settings=Digital_Fortress_Backend.dev_settings`
 
+
+## How to deploy 
+
+### Build the docker containers
+
+1. Clone the project
+
+```bash
+  git clone https://github.com/lugnitdgp/Digital_Fortress_Backend.git
+```
+
+2. Install docker
+
+
+
+3. Set-up environment variables
+
+```bash
+    cp .env.example .env
+```
+
+4. Spin-up the docker conatainers
+
+```bash
+    sudo docker-compose up -d --build
+```
+5. Create admin
+
+```bash
+    sudo docker exec -it [django_container_name] python manage.py createsuperuser
+```
+
+### Stopping the conatainers
+
+```bash
+    sudo docker-compose stop
+```
+
+### Removing the volumes and the container
+```bash
+    sudo docker-compose down -v
+```
+
 ### Status Codes:
 
 200 : Success
